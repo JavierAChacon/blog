@@ -2,17 +2,27 @@ import Article from '../models/Article.js'
 
 const getArticles = async (req, res) => {
   try {
+    const limit = 3
+    const { page } = req.params
+
     const articles = await Article.find()
       .select('title content')
       .sort({ date: -1 })
-      .skip((req.params.page - 1) * 3)
-      .limit(3)
+      .skip((page - 1) * limit)
+      .limit(limit)
+
+    if (page > Math.ceil(articles / limit)) {
+      return res.status(404).json({
+        error: "Page not found. Looks like you're lost"
+      })
+    }
 
     if (!articles) {
       return res.status(404).json({
         msg: 'There are not articles yet'
       })
     }
+
     return res.json(articles)
   } catch (error) {
     return res.json({
@@ -55,13 +65,13 @@ const createArticle = async (req, res) => {
         .json({ error: 'The title must not exceed 50 characters' })
     }
 
-    const article = new Article(req.body)
+    const newArticle = new Article(req.body)
 
-    await article.save()
+    await newArticle.save()
 
     return res.status(201).json({
       msg: 'Article created successfully',
-      article
+      article: newArticle
     })
   } catch (error) {
     return res.json({
@@ -70,4 +80,20 @@ const createArticle = async (req, res) => {
   }
 }
 
-export { getArticles, getArticle, createArticle }
+const deleteArticle = async (req, res) => {
+  try {
+    const { id } = req.params
+    const deletedArticle = await Article.findByIdAndDelete(id)
+  
+    return res.status(202).json({
+      msg: 'Article deleted successfully',
+      article: deletedArticle
+    })
+  } catch (error) {
+    return res.json({
+      error: error.message
+    })
+  }
+}
+
+export { getArticles, getArticle, createArticle, deleteArticle }
