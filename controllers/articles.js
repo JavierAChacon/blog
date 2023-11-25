@@ -65,13 +65,11 @@ const createArticle = async (req, res) => {
         .json({ error: 'The title must not exceed 50 characters' })
     }
 
-    const newArticle = new Article(req.body)
-
-    await newArticle.save()
+    await new Article(req.body).save()
 
     return res.status(201).json({
       msg: 'Article created successfully',
-      article: newArticle
+      article: req.body
     })
   } catch (error) {
     return res.json({
@@ -84,7 +82,13 @@ const deleteArticle = async (req, res) => {
   try {
     const { id } = req.params
     const deletedArticle = await Article.findByIdAndDelete(id)
-  
+
+    if (!deletedArticle) {
+      return res.status(404).json({
+        error: 'Article not found'
+      })
+    }
+
     return res.status(202).json({
       msg: 'Article deleted successfully',
       article: deletedArticle
@@ -96,4 +100,27 @@ const deleteArticle = async (req, res) => {
   }
 }
 
-export { getArticles, getArticle, createArticle, deleteArticle }
+const updateArticle = async (req, res) => {
+  try {
+
+    const { id } = req.params
+
+    Object.keys(req.body).map(key => (req.body[key] = req.body[key].trim()))
+
+    if (Object.values(req.body).includes('')) {
+      return res.status(400).json({ error: 'All the fields are required' })
+    }
+
+    await Article.findByIdAndUpdate(id, req.body)
+    return res.json({
+      msg: "Article updated successfully",
+      article: req.body
+    })
+  } catch (error) {
+    return res.json({
+      error: error.message
+    })
+  }
+}
+
+export { getArticles, getArticle, createArticle, deleteArticle, updateArticle }
