@@ -102,7 +102,6 @@ const deleteArticle = async (req, res) => {
 
 const updateArticle = async (req, res) => {
   try {
-
     const { id } = req.params
 
     Object.keys(req.body).map(key => (req.body[key] = req.body[key].trim()))
@@ -113,7 +112,7 @@ const updateArticle = async (req, res) => {
 
     await Article.findByIdAndUpdate(id, req.body)
     return res.json({
-      msg: "Article updated successfully",
+      msg: 'Article updated successfully',
       article: req.body
     })
   } catch (error) {
@@ -123,4 +122,19 @@ const updateArticle = async (req, res) => {
   }
 }
 
-export { getArticles, getArticle, createArticle, deleteArticle, updateArticle }
+const upload = (req, res) => {
+  console.log(req.file)
+  return res.json({
+    msg: 'uploading articles...',
+    files: req.file
+  })
+}
+
+export {
+  getArticles,
+  getArticle,
+  createArticle,
+  deleteArticle,
+  updateArticle,
+  upload
+}
