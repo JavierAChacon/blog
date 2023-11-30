@@ -6,14 +6,16 @@ import {
   createArticle,
   deleteArticle,
   updateArticle,
-  upload
+  getImage,
+  uploadImage,
+  searcher
 } from '../controllers/articles.js'
 
 const router = express.Router()
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './images/artciles')
+    cb(null, './images/articles')
   },
 
   filename: function (req, file, cb) {
@@ -32,6 +34,10 @@ router
   .get(getArticle)
   .delete(deleteArticle)
   .put(updateArticle)
-  .post(uploads.single('file0'), upload)
+  .post(uploads.single('file0'), uploadImage)
+
+router.get('/image/:id', getImage)
+
+router.get('/search/:search', searcher)
 
 export default router
